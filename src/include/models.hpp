@@ -268,9 +268,9 @@ public:
                     stan::math::assign(get_base1_lhs(p,n,"p",1), (1 / (1 + exp(get_base1(z,n,"z",1)))));
                 }
                 lp_accum__.add(bernoulli_log<propto__>(y, p));
-                lp_accum__.add(uniform_log<propto__>(get_base1(bet,1,"bet",1), 0, 25));
-                lp_accum__.add(uniform_log<propto__>(get_base1(bet,2,"bet",1), fmax(0,(beta1mean - 5)), (beta1mean + 5)));
-                lp_accum__.add(uniform_log<propto__>(b2, 0, 5));
+                lp_accum__.add(uniform_log<propto__>(get_base1(bet,1,"bet",1), 0.0, 25));
+                lp_accum__.add(uniform_log<propto__>(get_base1(bet,2,"bet",1), fmax(0.0,(beta1mean - 5)), (beta1mean + 5)));
+                lp_accum__.add(uniform_log<propto__>(b2, 0.0, 5));
             }
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -1903,7 +1903,7 @@ public:
         try {
             lp_accum__.add(normal_log<propto__>(auc, multiply(dose,b), sigma));
             lp_accum__.add(beta_log<propto__>(sigma, 1, 1));
-            lp_accum__.add(normal_log<propto__>(b, 0, beta0));
+            lp_accum__.add(normal_log<propto__>(b, 0.0, beta0));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return

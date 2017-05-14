@@ -8,7 +8,7 @@ data {
 }
 parameters {
   vector[2] bet;
-  real b2; 
+  real b2;
 }
 transformed parameters{
   vector[2] bet1;
@@ -25,7 +25,7 @@ model {
   p[n] = 1 / (1 + exp(z[n]));
   }
   y ~ bernoulli(p);
-  bet[1] ~ uniform(0,25);
-  bet[2] ~ uniform(fmax(0,beta1mean-5), beta1mean+5);
-  b2 ~ uniform(0,5);
+  bet[1] ~ uniform(0.0,25);
+  bet[2] ~ uniform(fmax(0.0,beta1mean-5), beta1mean+5);
+  b2 ~ uniform(0.0,5);
 }

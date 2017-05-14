@@ -6,7 +6,7 @@ data {
   real beta4mean;
 }
 parameters {
-  vector[2] bet; 
+  vector[2] bet;
 }
 transformed parameters {
   vector[2] bet1;

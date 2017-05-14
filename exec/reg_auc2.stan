@@ -11,5 +11,5 @@ parameters {
 model {
   auc ~ normal(dose*b, sigma);
   sigma ~ beta(1, 1);
-  b ~ normal(0, beta0);
+  b ~ normal(0.0, beta0);
 }

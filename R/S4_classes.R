@@ -227,7 +227,7 @@ setMethod(f = "plot", signature =c("dosefinding", "missing"), definition = funct
         par(las=1)
         n <- x@N                    
         nontox <- which(x@toxicity[TR,] == "0")
-        notNa <- which(is.na(x@doseLevels) == "FALSE")
+        notNa <- which(is.na(x@doseLevels[TR,]) == "FALSE")
         if (is.na(x@newDose) == "TRUE") warning("Plot not completed! The trial has stopped according to the stopping rules! \n \n", call. = FALSE)
         plot(x@pid[nontox], x@doseLevels[TR,nontox], pch="O", ylim=c(1,max(x@doseLevels[TR,notNa])), xlim=c(1,n), 
         	 xlab="Patient number", ylab="Dose level", ...)
