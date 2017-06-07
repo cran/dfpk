@@ -2,8 +2,8 @@ data {
   int<lower=0> N;         // number of previous patients
   int y[N];               // binary response
   matrix[N,2] dose;       // log dose + intercept
+  real beta2mean;
   real beta3mean;
-  real beta4mean;
 }
 parameters {
   vector[2] bet;
@@ -21,6 +21,6 @@ model {
   p[n] = 1 / (1 + exp(z[n]));
   }
   y ~ bernoulli(p);
-  bet[1] ~ uniform(0.0, beta3mean);
-  bet[2] ~ uniform(0.0, beta4mean);
+  bet[1] ~ uniform(0.0, beta2mean);
+  bet[2] ~ uniform(0.0, beta3mean);
 }

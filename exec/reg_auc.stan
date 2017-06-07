@@ -3,6 +3,7 @@ data {
   vector[N] auc; 			// log auc
   matrix[N,2] dose; 		// log dose + intercept
   real beta0;
+  real mu;
 }
 parameters {
   vector[2] b;
@@ -11,5 +12,5 @@ parameters {
 model {
   auc ~ normal(dose*b, sigma);
   sigma ~ beta(1, 1);
-  b ~ normal(0.0, beta0);
+  b ~ normal(mu, beta0);
 }

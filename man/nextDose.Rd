@@ -67,12 +67,9 @@ AUCs <- c(1.208339,  5.506040,  6.879835,  3.307928,  3.642430,
 x <- c(1, 2, 3, 4, 5, 6, 4, 4, 4, 5, 5, 4, 4, 5, 5)
 y <- c(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0)
 nextD <- nextDose(model = "pktox", y=y, AUCs=AUCs, doses=doses, 
-                   x=x, theta=theta, options=options)
+                  x=x, theta=theta, options=options)
 }
 
-}
-\author{
-Artemis Toumazi \email{artemis.toumazi@inserm.fr}, Moreno Ursino \email{moreno.ursino@inserm.fr}, Sarah Zohar \email{sarah.zohar@inserm.fr}
 }
 \references{
 Ursino, M., et al, (2017) Dose-finding methods for Phase I clinical trials using pharmacokinetics in small populations, Biometrical Journal.
@@ -80,4 +77,6 @@ Ursino, M., et al, (2017) Dose-finding methods for Phase I clinical trials using
 \seealso{
 \code{\link{nsim}}
 }
-
+\author{
+Artemis Toumazi \email{artemis.toumazi@inserm.fr}, Moreno Ursino \email{moreno.ursino@inserm.fr}, Sarah Zohar \email{sarah.zohar@inserm.fr}
+}
