@@ -12,7 +12,9 @@ setClassUnion("ClassNewDose", c("numeric", "logical", "NULL"))
 #' @slot nchains Number of chains for the stan model.
 #' @slot niter Number of iterations for the stan model.
 #' @slot nadapt  Number of warmup iterations for the stan model.
-#' @slot newDose  The next maximum tolerated dose (MTD).
+#' @slot newDose  The next maximum tolerated dose (MTD) if TR=1 else the selected percentage of MTD.
+#' @slot MTD The vector containing all the maximum tolerated dose for each TR.
+#' @slot MtD The next maximum tolerated dose (MTD).
 #' @slot theta  The toxicity (probability) target.
 #' @slot doseLevels A vector of dose levels assigned to patients in the trial.
 #' @slot toxicity The toxicity outcome.
@@ -28,8 +30,8 @@ setClassUnion("ClassNewDose", c("numeric", "logical", "NULL"))
 #' @export
 setClass("dosefinding", slots = list(pid="numeric", N ="numeric", time="numeric", doses = "numeric", conc="numeric", 
         p0 = "numeric", L = "numeric",  nchains = "numeric", niter = "numeric", nadapt = "numeric", newDose = "ClassNewDose", 
-        theta = "numeric", doseLevels="matrix", toxicity= "matrix", AUCs="matrix", TR="numeric", preal = "numeric", 
-        pstim = "list", pstimQ1 = "list", pstimQ3 = "list", model = "character"))
+        MTD = "ClassNewDose", MtD = "numeric", theta = "numeric", doseLevels="matrix", toxicity= "matrix", AUCs="matrix", TR="numeric", 
+        preal = "numeric", pstim = "list", pstimQ1 = "list", pstimQ3 = "list", model = "character"))
 
 
 #' An S4 class to represent a simulated scenarios.
@@ -37,6 +39,7 @@ setClass("dosefinding", slots = list(pid="numeric", N ="numeric", time="numeric"
 #' @slot PKparameters The subject's PK parameters.
 #' @slot nPK The length of time sampling.
 #' @slot time The time sampling.
+#' @slot idtr The id number of the corresponding simulated dataset.
 #' @slot N  The total number of patients.
 #' @slot doses The doses levels of the drug. 
 #' @slot preal The real probability of toxicity.
@@ -52,7 +55,7 @@ setClass("dosefinding", slots = list(pid="numeric", N ="numeric", time="numeric"
 #' @import methods
 #' @useDynLib dfpk, .registration = TRUE
 #' @export
-setClass("scen", representation(PKparameters="numeric", nPK="numeric", time="numeric", 
+setClass("scen", slots = list(PKparameters="numeric", nPK="numeric", time="numeric", idtr="numeric",
         N = "numeric", doses="numeric", preal = "numeric", limitTox="numeric", omegaIIV="numeric", 
         omegaAlpha="numeric", conc="matrix", concPred="numeric",
         tox="matrix", tab="matrix", parameters = "matrix", alphaAUC="numeric"))
@@ -76,7 +79,7 @@ setClass("scen", representation(PKparameters="numeric", nPK="numeric", time="num
 #' @import methods
 #' @useDynLib dfpk, .registration = TRUE
 #' @export
-setClass("Dose", slots = list(N = "numeric", y = "numeric", AUCs = "numeric", doses ="numeric", x = "numeric", 
+setClass("dose", slots = list(N = "numeric", y = "numeric", AUCs = "numeric", doses ="numeric", x = "numeric", 
         theta = "numeric", options = "list", newDose="ClassNewDose", pstim="numeric", pstimQ1="numeric", pstimQ3="numeric", 
         parameters="numeric", model = "character"))
 
@@ -114,28 +117,32 @@ setMethod(f = "show", signature ="dosefinding", definition = function(object)
         }else{
             cat("\n","C. Dose-Finding Results: \n")
             doselevels <- as.vector(object@doseLevels)
-            t <- matrix(NA, nrow=3, ncol=length(object@doses))
-            rownames(t) <- c("Dose", "Truth Probabilities","Selected % MTD")
-            colnames(t) <- rep("", length(object@doses))
-            for (i in 1:length(object@doses)){
-                t[1, i] <- as.integer(i)
-                t[2, i] <- round(object@preal[i], digits=3)
-                n_levels = length(which(doselevels == i))
-                t[3, i] <- round(n_levels/length(doselevels), digits=2)
+            t <- matrix(NA, nrow=4, ncol=length(object@doses)+1)
+            rownames(t) <- c("Dose", "Truth Probabilities", "Dose-Allocation (%)", "Selected % MTD")
+            colnames(t) <- rep("", length(object@doses)+1)
+            t[1, ] <- seq(0, 6)
+            t[2, ] <- c(0, round(object@preal, digits=3))
+            for(i in 1:length(object@doses)){
+              n_levels = length(which(doselevels == i))
+              t[3, i+1] <- round(n_levels/length(doselevels), digits=2)
             }
+            zeroDose <- length(which(doselevels == "NA"))
+            t[3,1] <- zeroDose / length(doselevels)
+            t[4, ] <- round(object@newDose, digits=2)
             print(t)
             cat("Recommendation is based on a target toxicity probability of:",object@theta, "\n")
         }
     }
 )
 
+
 setGeneric("show")
 #' @export
 setMethod(f = "show",
-          signature ="scen",
+          signature = "scen",
           definition = function(object){
                cat("Today: ", date(), "\n")
-               cat("\n","Scenarios Settings","\n","\n")
+               cat("\n","Scenarios Settings", "(TR:", object@idtr, ")", "\n","\n")
                cat("Total number of patients in the trial:", "\t", object@N, "\n")
                cat("The subject's PK parameters (ka, CL, V):", object@PKparameters)
                cat(" with a standard deviation of CL and V equals to:", object@omegaIIV, "\n")
@@ -157,13 +164,14 @@ setMethod(f = "show",
                cat("The PK parameter's estimations for each patient are:", "\n")
                print(round(object@parameters, digits=3))
                cat("\n","NB. pid = Patient's ID number \n")
-         }
+        }
 )
+
 
 setGeneric("show")
 #' @export 
 setMethod(f = "show",
-          signature ="Dose",
+          signature ="dose",
           definition = function(object) {
                cat("Today: ", date(), "\n")
                cat("Model:", object@model, "\n")
@@ -189,7 +197,7 @@ setGeneric("plot")
 #' The graphical representation of dose escalation for each patient in the trial. 
 #' 
 #' @param x a "dosefinding" object.
-#' @param y the "y" argument is not used in the plot-method for "scen" object.
+#' @param y the "y" argument is not used in the plot-method for "dosefinding" object.
 #' @param TR The number of replicates clinical trials.
 #' @param ask Choose plot or not.
 #' @param \dots other arguments to the \code{\link[=graphics]{plot.default}} function can be passed here.
@@ -228,7 +236,7 @@ setMethod(f = "plot", signature =c("dosefinding", "missing"), definition = funct
         n <- x@N                    
         nontox <- which(x@toxicity[TR,] == "0")
         notNa <- which(is.na(x@doseLevels[TR,]) == "FALSE")
-        if (is.na(x@newDose) == "TRUE") warning("Plot not completed! The trial has stopped according to the stopping rules! \n \n", call. = FALSE)
+        if(x@MtD == 0) warning("Plot not completed! The trial has stopped according to the stopping rules! \n \n", call. = FALSE)
         plot(x@pid[nontox], x@doseLevels[TR,nontox], pch="O", ylim=c(1,max(x@doseLevels[TR,notNa])), xlim=c(1,n), 
         	 xlab="Patient number", ylab="Dose level", ...)
         points((1:length(x@toxicity[TR,]))[-nontox],x@doseLevels[TR,-nontox], pch="X")
@@ -242,7 +250,7 @@ setMethod(f = "plot", signature =c("dosefinding", "missing"), definition = funct
         # for(i in 1: ndoses){
         #    PropTox[i,] <-  rbind(summary(x@pstim_post[i,]))
         # }
-        if (is.na(x@newDose) == "TRUE") stop("unable to plot! The trial stopped based on the stopping rules \n \n", call. = FALSE)
+        if (x@MtD == 0) stop("Unable to plot! The trial stopped based on the stopping rules \n \n", call. = FALSE)
         plot(1:ndoses, x@pstim[[TR]][1:ndoses,n],type="l",xlab="Dose level",ylab="Probability of toxicity", ylim=c(0,max(x@pstim[[TR]][1:ndoses,n]) + 0.15))
         points(1:ndoses,x@pstim[[TR]][1:ndoses,n], pch="X")
         lines(1:ndoses,x@preal, lty=2)
@@ -257,7 +265,7 @@ setMethod(f = "plot", signature =c("dosefinding", "missing"), definition = funct
     } else {
         par(las=1)
         ndoses <- length(x@doses)
-        if (is.na(x@newDose) == "TRUE") stop("unable to plot! The trial stopped based on the stopping rules \n \n", call. = FALSE)
+        if (x@MtD == 0) stop("Unable to plot! The trial stopped based on the stopping rules \n \n", call. = FALSE)
         PropTox <- matrix(NA, ncol = 6, nrow = ndoses)
         for(i in 1: ndoses){
             #PropTox[i,] <-  rbind(summary(x@pstim[i,]))
@@ -273,8 +281,12 @@ setMethod(f = "plot", signature =c("dosefinding", "missing"), definition = funct
 
 #' The graphical representation of the drug's concentration in the plasma at time t after the drug administration. 
 #'  
-#' @param x a "scen" object.
+#' @param x a "scen" object or a list of the selected trial from a "scen" object.
 #' @param y the "y" argument is not used in the plot-method for "scen" object.
+#' @param col the color argument to the \code{\link[=graphics]{plot.default}} function.
+#' @param xlab the label of x-axis.
+#' @param ylab the label of y-axis.
+#' @param main the title of the graph.
 #' @param \dots other arguments to the \code{\link[=graphics]{plot.default}} function can be passed here.
 #'
 #' @author Artemis Toumazi \email{artemis.toumazi@@inserm.fr}, Moreno Ursino \email{moreno.ursino@@inserm.fr}, Sarah Zohar \email{sarah.zohar@@inserm.fr}
@@ -287,19 +299,20 @@ setMethod(f = "plot", signature =c("dosefinding", "missing"), definition = funct
 #' @importFrom grDevices  rainbow
 #' @useDynLib dfpk, .registration = TRUE
 #' @export
-setMethod(f = "plot", signature =c("scen", "missing"), definition = function(x, y=NA, ...){
-	colors <- rainbow(length(x@doses))
-	plot(x@time, x@conc[,1], type="l", col=colors[1], xlab="Time (hours)", ylab="Concentration (mg/L)", main="Pharmacokinetics: Concentration vs Time", ylim=c(0,max(x@conc)),...)
-	for(i in 2:length(x@doses)){
-		lines(x@time, x@conc[,i], col=colors[i], lty=i,...)
-	}
+setMethod(f = "plot", signature =c("scen", "missing"), definition = function(x, y=NA, col = rainbow(length(x@doses)), xlab="Time (hours)", 
+          ylab="Concentration (mg/L)", main="Pharmacokinetics: Concentration vs Time", ...){
+    plot(x@time, x@conc[,1], type="l", col=col[1], xlab=xlab, ylab=ylab, main=main, ylim=c(0,max(x@conc)), ...)
+    for(i in 2:length(x@doses)){
+        lines(x@time, x@conc[,i], col=col[i], lty=i, ...)
+    }
 }
 )
 
+
 #' The graphical representation of dose escalation for each patient in the trial. 
 #'
-#' @param x a "Dose" object.
-#' @param y the "y" argument is not used in the plot-method for "Dose" object.
+#' @param x a "dose" object.
+#' @param y the "y" argument is not used in the plot-method for "dose" object.
 #' @param ask Choose plot or not.
 #' @param \dots other arguments to the \code{\link[=graphics]{plot.default}} function can be passed here.
 #'
@@ -313,7 +326,7 @@ setMethod(f = "plot", signature =c("scen", "missing"), definition = function(x, 
 #' @importFrom grDevices  rainbow
 #' @useDynLib dfpk, .registration = TRUE
 #' @export
-setMethod(f = "plot", signature =c("Dose", "missing"), definition = function(x, y=NA, ask=TRUE, ...){
+setMethod(f = "plot", signature =c("dose", "missing"), definition = function(x, y=NA, ask=TRUE, ...){
     choices <- c("1: Plot trial summary", "2: Plot posterior dose response with 95% CI\n")
     if (ask == "TRUE") {
         cat("Make a plot selection (or 0 to exit)\n\n")

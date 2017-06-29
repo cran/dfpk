@@ -12,7 +12,7 @@ nsim is used to generate "n" simulations of phase I trial using the PK data and 
 \usage{ 
 nsim(doses, N, cohort, icon, theta, model, simulatedData, TR, prob = 0.9, AUCmethod = 2, 
      options = list(nchains = 4, niter = 4000, nadapt = 0.8), betapriors = NULL,
-     thetaL=NULL, p0 = 0, L = 0)
+     thetaL=NULL, p0 = 0, L = 0, seed = 190591)
 }
 
 \arguments{
@@ -61,6 +61,9 @@ nsim(doses, N, cohort, icon, theta, model, simulatedData, TR, prob = 0.9, AUCmet
     \item{L}{
         The AUC threshold to be set before starting the trial for pklogit, pkcrm and pktox; defaults to NULL (must be defined only in the PKCRM model).
     }
+    \item{seed}{
+    Seed of the random number generator. Default value is set at 190591.  
+    }
 }
 
 \value{
@@ -74,7 +77,8 @@ nsim(doses, N, cohort, icon, theta, model, simulatedData, TR, prob = 0.9, AUCmet
     \item{nchains}{The number of chains for the Stan model.}
     \item{niter}{The number of iterations for each chain in the Stan model.}
     \item{nadapt}{The number of warmup iterations.}
-    \item{newDose}{The next maximum tolerated dose (MTD); equals to "NA" if the trial has stopped before the end, according to the stopping rules.}
+    \item{newDose}{The next maximum tolerated dose (MTD) if TR=1 otherwise the percentage of MTD selection for each dose level starting from dose 0; equals to 0 if the TR=1 has stopped before the end, according to the stopping rules.}
+    \item{MTD}{A vector containing the next maximum tolerated doses (MTD) of each trial (TR); equals to 0 if the trial has stopped before the end, according to the stopping rules.}
     \item{theta}{Tocixity target.}
     \item{doseLevels}{A vector of dose levels assigned to patients in the trial.}
     \item{toxicity}{The estimated toxicity outcome.}
@@ -104,7 +108,7 @@ Ursino, M., et al, (2017) Dose-finding methods for Phase I clinical trials using
 \examples{
     \dontrun{
         TR = 10                                 # Total number of simulations                 
-        N = 42                         
+        N = 30                         
         limitTox <- 10.96 
         PKparameters <- c(2, 10, 100)             # PK parameters ka,CL,V
         omegaIIV <- 0.7                        
@@ -114,11 +118,10 @@ Ursino, M., et al, (2017) Dose-finding methods for Phase I clinical trials using
         sigma <- rep(0.2, length(timeSampling))         
 
         gen.scen <- sim.data(PKparameters,omegaIIV,omegaAlpha,sigma,doses,
-                             limitTox,timeSampling, N)
+                             limitTox,timeSampling, N, TR)
 
         cohort = 1
         simulatedData <- gen.scen  
-        doses <- simulatedData@doses
         icon <- c(2:6, round(seq(9, 48, ((48-9)/4))))      
         theta <- 0.2                             
 
@@ -132,7 +135,8 @@ Ursino, M., et al, (2017) Dose-finding methods for Phase I clinical trials using
         ############ Run the simulation(s) #########
         ############################################
         
-        results_sim <- nsim(doses, N, cohort, icon, theta, model, simulatedData, TR, AUCmethod = 1)
+        results_sim <- nsim(doses, N, cohort, icon, theta, model, simulatedData, TR, 
+                            AUCmethod = 1)
         results_sim
     }
 }

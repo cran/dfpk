@@ -10,7 +10,7 @@
 \arguments{
 \item{x}{a "dosefinding" object.}
 
-\item{y}{the "y" argument is not used in the plot-method for "scen" object.}
+\item{y}{the "y" argument is not used in the plot-method for "dosefinding" object.}
 
 \item{TR}{The number of replicates clinical trials.}
 
