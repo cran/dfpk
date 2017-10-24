@@ -2,8 +2,8 @@ Package: dfpk
 Type: Package
 Title: Bayesian Dose-Finding Designs using Pharmacokinetics (PK) for
         Phase I Clinical Trials
-Version: 3.3.2
-Date: 2017-09-28
+Version: 3.4.0
+Date: 2017-10-24
 Author: Artemis Toumazi <artemis.toumazi@inserm.fr>, Moreno Ursino <moreno.ursino@inserm.fr> 
 		and Sarah Zohar <sarah.zohar@inserm.fr>
 Maintainer: Artemis Toumazi <artemis.toumazi@inserm.fr>
@@ -17,7 +17,7 @@ Description: Statistical methods involving PK measures are provided, in the dose
 						This package provides functions to generate data from several scenarios and functions 
 						to run simulations which their objective is to determine the maximum tolerated dose (MTD).
 License: GPL (>= 3) | file LICENSE
-Depends: R (>= 3.0.2), Rcpp (>= 0.12.0), rstan (>= 2.12.1)
+Depends: R (>= 3.0.2), Rcpp (>= 0.12.11), rstan (>= 2.12.1)
 Imports: ggplot2 (>= 2.0.0), dfcrm, methods, stats, graphics,
         grDevices, PK
 LinkingTo: StanHeaders (>= 2.12.0), rstan (>= 2.12.1), BH (>= 1.60),
@@ -31,6 +31,6 @@ NeedsCompilation: yes
 URL: http://github.com/artemis-toumazi/dfpk
 BugReports: http://github.com/artemis-toumazi/dfpk/issues
 RoxygenNote: 6.0.1
-Packaged: 2017-09-28 11:37:31 UTC; artemistoumazi
+Packaged: 2017-10-24 14:20:42 UTC; artemistoumazi
 Repository: CRAN
-Date/Publication: 2017-09-28 21:36:04 UTC
+Date/Publication: 2017-10-24 15:24:47 UTC
