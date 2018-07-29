@@ -1,4 +1,4 @@
-914a4788ec88b6401d6eaaf7d9747799 *DESCRIPTION
+1e6b6dd51053c08075027bc8aef55a35 *DESCRIPTION
 84dcc94da3adb52b53ae4fa38fe49e5d *LICENSE
 9599f596abbec5a5119d18b05f4a7150 *NAMESPACE
 70d321654044ed2f5ed14405e3c65529 *R/AUC.estim.R
@@ -11,7 +11,7 @@ a8cf083412f2886db9faacb1b99f47b1 *R/invlogit.R
 8c6651e64eaa703dcded9cecbc2d76d5 *R/pk.estim.R
 6c5327ac856baba7ef78bed48de96787 *R/pkcov.R
 1499653c67e94ce69de8b311d256a010 *R/pkcrm.R
-ee6b8809a8f97c8bb684b2e5af8bf39e *R/pklogit.R
+4aeb551bdac4040ccdcc0aff8e98337c *R/pklogit.R
 ca2b327b9ebd3bf532e98bb0a2636e3a *R/pkpop.R
 351bc6a69b3799310d3935d8582d280e *R/pktox.R
 675d3aac1bca8d8a5b5ab5746e2e6e42 *R/sim.data.R
