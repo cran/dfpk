@@ -1,4 +1,4 @@
-1e6b6dd51053c08075027bc8aef55a35 *DESCRIPTION
+efac0ee2824771fb5b0c146f18227eb6 *DESCRIPTION
 84dcc94da3adb52b53ae4fa38fe49e5d *LICENSE
 9599f596abbec5a5119d18b05f4a7150 *NAMESPACE
 70d321654044ed2f5ed14405e3c65529 *R/AUC.estim.R
@@ -48,8 +48,8 @@ ad9c011e3728eb0fc9701f93fe2cfd06 *man/plot-dose-missing-method.Rd
 d7e414a06f2a4819ca696b76c6463236 *man/show-methods.Rd
 963204b0657b400018d2b8048a6aa31d *man/sim.data.Rd
 731195e810cd997d2f3cc92e947ece25 *man/stan_f.Rd
-0daa822fb0e9360e9eb310e4496b24d8 *src/Makevars
+11f5b7b64a519de103d72d535f683c08 *src/Makevars
 5d68edcfd238ed1ff5ec9e0809344de1 *src/Modules.cpp
-f4a13ddae6ff8e081ed6b11dda6fe3b2 *src/include/models.hpp
+7a5cc64182b5b51e80f4e001fa655b68 *src/include/models.hpp
 e8b2907cf6e2f821c1dec45b0a267543 *src/init.c
 aee3be6746b07b6ac6086b3b6bf8efee *tools/make_cpp.R
